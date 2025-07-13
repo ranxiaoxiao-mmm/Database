@@ -1,0 +1,105 @@
+.header {
+    position: fixed; /* 固定在页面顶部 */
+    top: 0;
+    width: 100%; /* 占满页面宽度 */
+    z-index: 1000; /* 确保在最上层 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #111;
+}
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px; /* 设置内容的最大宽度 */
+    margin: 0 auto; /* 居中对齐 */
+    padding: 0px 20px; /* 内边距，避免内容贴边 */
+}
+.header .logo-button {
+    background-color: #f5c518;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.header .logo-button:hover {
+    background-color: #e4b917;
+}
+.header .menu {
+    display: flex;
+    gap: 15px;
+    white-space: nowrap; /* 防止菜单换行 */
+}
+.header .menu a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    position: relative; /* 关键：为伪元素定位做准备 */
+    padding-bottom: 4px; /* 留出下划线空间 */
+}
+.header .menu a::after {
+    content: "";
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: #fff;
+    transition: width 0.3s;
+}
+.header .menu a:hover::after {
+    width: 100%;
+}
+.search-form {
+    display: flex;
+    align-items: center;
+    flex-grow: 1; /* 搜索框容器占据剩余空间 */
+    gap: 20px; /* 搜索框和按钮之间的间距 */
+    margin: 0 20px; /* 搜索框与两侧的间距 */
+}
+.search-input {
+    flex: 1; /* 搜索框动态调整宽度 */
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 600px; /* 搜索框宽度 */
+    background-color: #fff;
+    color: #000;
+}
+.search-input::placeholder {
+    color: #aaa;
+}
+.search-button {
+    padding: 8px 15px;
+    font-size: 14px;
+    background-color: #f5c518;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.search-button:hover {
+    background-color: #e4b917;
+}
+.login-button {
+    background-color: #111; /* 按钮背景色 */
+    color: #fff; /* 按钮文字颜色 */
+    border: none;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 20px; /* 与 logo-button 的间距 */
+    white-space: nowrap; /* 防止按钮文字换行 */
+}
+.login-button:hover {
+    background-color: #222; /* 悬停时的背景色 */
+}

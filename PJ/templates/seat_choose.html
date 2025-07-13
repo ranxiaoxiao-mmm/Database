@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>选座购票</title>
+    <link rel="stylesheet" href="/static/header_styles.css"> <!-- 引入公共样式 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            display: flex;
+            max-width: 1200px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 32px;
+            position: absolute;      /* 新增 */
+            top: 50%;                /* 新增 */
+            left: 50%;               /* 新增 */
+            transform: translate(-50%, -50%); /* 新增 */
+        }
+        .seat-area {
+            flex: 3;
+            padding-right: 40px;
+        }
+        .screen {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #888;
+            font-size: 16px;
+        }
+        .seats {
+            display: grid;
+            grid-gap: 12px;
+            justify-content: center;
+        }
+        .seat {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 2px solid #eee;
+            background: #fff;
+            cursor: pointer;
+            transition: background 0.2s, border 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            user-select: none;
+        }
+        .seat.available:hover {
+            background: #e4f1ff;
+            border-color: #3399ff;
+        }
+        .seat.selected {
+            background: #7ed321;
+            border-color: #7ed321;
+            color: #fff;
+            cursor: pointer;
+        }
+        .seat.sold {
+            background: #f5c518;
+            border-color: #f5c518;
+            color: #fff;
+            cursor: not-allowed;
+        }
+        .legend {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 18px;
+            align-items: center;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .legend-box {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            border: 2px solid #eee;
+            display: inline-block;
+        }
+        .legend-available { background: #fff; border-color: #eee; }
+        .legend-sold { background: #f5c518; border-color: #f5c518; }
+        .legend-selected { background: #7ed321; border-color: #7ed321; }
+        .sidebar {
+            flex: 1;
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 24px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            min-width: 260px;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .movie-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .info-row {
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+        .seat-list {
+            color: #f3c005;
+            font-weight: bold;
+        }
+        .total-price {
+            color: #f3c005;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+        .confirm-btn {
+            background: #f5c518;
+            color: #333;
+            border: none;
+            border-radius: 24px;
+            padding: 14px 0;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .confirm-btn:active {
+            background: #e4b917;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        .screen-bar {
+            width: 80%;
+            height: 18px;
+            margin: 0 auto 18px auto;
+            background: linear-gradient(to bottom, #f7f7f7 60%, #ededed 100%);
+            border-radius: 4px 4px 10px 10px;
+            box-shadow: 0 4px 16px 0 #eee;
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+<div class="container">
+    <div class="seat-area">
+        <div class="legend">
+            <div class="legend-item"><span class="legend-box legend-available"></span>可选座位</div>
+            <div class="legend-item"><span class="legend-box legend-sold"></span>已售座位</div>
+            <div class="legend-item"><span class="legend-box legend-selected"></span>已选座位</div>
+        </div>
+        <div class="screen-bar"></div>
+        <div class="screen">银幕中央</div>
+        <div class="seats" id="seats">
+            <!-- 座位将由JS动态渲染 -->
+        </div>
+    </div>
+    <div class="sidebar">
+        <div class="movie-title" id="movie-title">{{ movie_name }}</div>
+        <div class="info-row">影厅：<span id="hall">{{ hall_name }}</span></div>
+        <div class="info-row">场次：<span id="showtime">{{ showtime }}</span></div>
+        <div class="info-row">座位：<span class="seat-list" id="selected-seats"></span></div>
+        <div class="info-row">总价：<span class="total-price" id="total-price">￥0</span></div>
+        <button class="confirm-btn" id="confirm-btn">确认选座</button>
+    </div>
+</div>
+<script>
+    const seatData = JSON.parse('{{ seats|tojson|safe }}');
+    const rowCount = parseInt('{{ row_count }}');
+    const colCount = parseInt('{{ col_count }}');
+    const movie_price = parseFloat('{{ movie_price }}'); // 新增
+
+    const seatMap = {};
+    seatData.forEach(seat => {
+        seatMap[`${seat.row}-${seat.col}`] = seat;
+    });
+
+    const seatsContainer = document.getElementById('seats');
+    seatsContainer.style.gridTemplateColumns = `repeat(${colCount}, 36px)`;
+
+    let selectedSeats = [];
+
+    function renderSeats() {
+        seatsContainer.innerHTML = '';
+        for (let row = 1; row <= rowCount; row++) {
+            for (let col = 1; col <= colCount; col++) {
+                const seat = seatMap[`${row}-${col}`];
+                let seatDiv = document.createElement('div');
+                seatDiv.classList.add('seat');
+                seatDiv.dataset.row = row;
+                seatDiv.dataset.col = col;
+                if (seat) {
+                    if (seat.seat_state === '已售') {
+                        seatDiv.classList.add('sold');
+                        seatDiv.innerHTML = '';
+                    } else if (seat.seat_state === '可订') {
+                        seatDiv.classList.add('available');
+                        seatDiv.innerHTML = '';
+                        seatDiv.addEventListener('click', function() {
+                            toggleSeat(Number(row), Number(col));
+                        });
+                    } else {
+                        seatDiv.style.visibility = 'hidden';
+                    }
+                } else {
+                    seatDiv.style.visibility = 'hidden';
+                }
+                // 判断是否已选
+                if (selectedSeats.find(s => s.row === Number(row) && s.col === Number(col))) {
+                    seatDiv.classList.remove('available');
+                    seatDiv.classList.add('selected');
+                    seatDiv.innerHTML = '✓';
+                }
+                seatsContainer.appendChild(seatDiv);
+            }
+        }
+    }
+
+    function toggleSeat(row, col) {
+        const idx = selectedSeats.findIndex(s => s.row === row && s.col === col);
+        if (idx > -1) {
+            selectedSeats.splice(idx, 1);
+        } else {
+            selectedSeats.push({row, col});
+        }
+        renderSeats();
+        updateSidebar();
+    }
+
+    function updateSidebar() {
+        const seatNames = selectedSeats.map(s => `${s.row}排${s.col}座`);
+        document.getElementById('selected-seats').textContent = seatNames.join('、');
+        let total = 0;
+        selectedSeats.forEach(s => {
+            const seat = seatMap[`${s.row}-${s.col}`];
+            if (seat) total += seat.price + movie_price;
+        });
+        document.getElementById('total-price').textContent = `￥${total.toFixed(1)}`;
+    }
+
+    document.getElementById('confirm-btn').addEventListener('click', function(){
+        if (selectedSeats.length === 0) {
+            alert('请先选择座位');
+            return;
+        }
+        // 生成座位ID字符串
+        const seatIds = selectedSeats.map(s => seatMap[`${s.row}-${s.col}`]?.seat_id).filter(Boolean).join(',');
+        // 拼接参数
+        const params = new URLSearchParams({
+            movie_name: document.getElementById('movie-title').innerText,
+            hall_name: document.getElementById('hall').innerText,
+            showtime: document.getElementById('showtime').innerText,
+            select_seats: document.getElementById('selected-seats').innerText,
+            total_price: document.getElementById('total-price').innerText.replace('￥', ''),
+            movie_poster: '{{ movie_poster }}',
+            screen_id: '{{ screen_id }}',
+            eact_id: '{{ employee_id }}',
+            seat_ids: seatIds // 新增
+            // 还可以加上其他需要的参数，如 movie_poster、screen_id、seat_ids 等
+        });
+        // 跳转到 seat_pay 页面，GET 方式传递参数
+        window.location.href = '/cinema_ticket/seat_pay?' + params.toString();
+    });
+
+    renderSeats();
+    updateSidebar();
+</script>
+</body>
+</html>

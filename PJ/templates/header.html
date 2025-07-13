@@ -1,0 +1,22 @@
+<div class="header">
+    <div class="header-content">
+        <button class="logo-button" onclick="window.location.href='/cinema_ticket/home'">Rxx_Cinema</button>
+        <button class="login-button" onclick="window.location.href='{% if username %}/cinema_ticket/logout{% else %}/cinema_ticket/login{% endif %}'">
+            {% if username %}
+                {{ username }}
+            {% else %}
+                登录
+            {% endif %}
+        </button>
+        <form class="search-form" action="/cinema_ticket/search" method="GET">
+            <input type="text" name="title" placeholder="搜索电影..." class="search-input">
+            <button type="submit" class="search-button">搜索</button>
+        </form>
+        <div class="menu">
+            <a href="/cinema_ticket/home">首页</a>
+            <a href="/cinema_ticket/movies">电影</a>
+            <a href="/cinema_ticket/vip">会员中心</a>
+            <a href="/cinema_ticket/about">关于我们</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>支付订单</title>
+    <link rel="stylesheet" href="/static/header_styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            margin: 0;
+            padding: 0;
+            display: flex; /* 新增 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+            min-height: 100vh; /* 确保页面至少为视口高度 */
+        }
+        .container {
+            display: flex;
+            width: 100%; /* 确保宽度为100% */
+            max-width: 1100px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            padding: 36px 40px;
+            margin: 80px auto; /* 保持水平居中 */
+            min-height: 480px;
+        }
+        .poster-area {
+            flex: 1.1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .poster-area img {
+            width: 260px;
+            border-radius: 10px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+            background: #f7f7f7;
+        }
+        .info-area {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-left: 48px;
+        }
+        .movie-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #222;
+        }
+        .info-row {
+            margin-bottom: 14px;
+            font-size: 1.1rem;
+            color: #444;
+        }
+        .seat-list {
+            color: #f3c005;
+            font-weight: bold;
+        }
+        .total-price {
+            color: #f3c005;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 18px 0 18px 0;
+        }
+        .btn-row {
+            display: flex;
+            gap: 28px;
+            margin-top: 32px;
+        }
+        .btn {
+            flex: 1;
+            padding: 14px 0;
+            background-color: #f5c518;
+            color: #222;
+            border: none;
+            border-radius: 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+            transition: background 0.2s;
+        }
+        .btn:active {
+            background: #e4b917;
+        }
+        .btn.cancel {
+            background: #fff;
+            color: #222;
+            border: 1.5px solid #f5c518;
+        }
+        .btn.cancel:active {
+            background: #f7f7f7;
+        }
+        @media (max-width: 900px) {
+            .container { flex-direction: column; padding: 18px; }
+            .poster-area { justify-content: center; margin-bottom: 24px; }
+            .info-area { padding-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="container">
+        <div class="poster-area">
+            <img src="{{ movie_poster }}" alt="{{ movie_name }}">
+        </div>
+        <div class="info-area">
+            <div class="movie-title">{{ movie_name }}</div>
+            <div class="info-row">场次：<span>{{ showtime }}</span></div>
+            <div class="info-row">影厅：<span>{{ hall_name }}</span></div>
+            <div class="info-row">座位：<span style="color: #f3c005; font-weight: bold;">{{ select_seats }}</span></div>
+            <div class="info-row total-price">总价：￥<span id="total-price">{{ total_price }}</span></div>
+            <div class="info-row">售票员：<span>{{ esold_name }}</span></div>
+            <div class="info-row">放映员：<span>{{ eact_name }}</span></div>
+            <div class="btn-row">
+                <button class="btn" id="pay-btn">确认支付</button>
+                <button class="btn cancel" id="cancel-btn">放弃支付</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 获取模板变量
+        const user_id = "{{ user_id }}";
+        const screen_id = "{{ screen_id }}";
+        const seat_id = "{{ seat_ids }}";
+        const total_amount = "{{ total_price }}";
+        const esold_id = "{{ esold_id }}";
+        const eact_id = "{{ eact_id }}";
+
+        // 确认支付
+        document.getElementById('pay-btn').onclick = function() {
+            fetch('/cinema_ticket/pay_order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: user_id,
+                    screen_id: screen_id,
+                    seat_id: seat_id,
+                    total_amount: total_amount,
+                    state: '已支付',
+                    employee_id: esold_id
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success){
+                    alert('支付成功！');
+                    window.location.href = '/cinema_ticket/home';
+                } else {
+                    alert('支付失败：' + (data.msg || '未知错误'));
+                }
+            });
+        };
+
+        // 放弃支付
+        document.getElementById('cancel-btn').onclick = function() {
+            fetch('/cinema_ticket/pay_order', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    user_id: user_id,
+                    screen_id: screen_id,
+                    seat_id: seat_id,
+                    total_amount: total_amount,
+                    state: '已取消',
+                    employee_id: esold_id
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                window.location.href = `/cinema_ticket/choose_seat?screen_id=${screen_id}`;
+            });
+        };
+    </script>
+</body>
+</html>

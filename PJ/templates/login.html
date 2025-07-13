@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户登录</title>
+    <link rel="stylesheet" href="/static/header_styles.css"> <!-- 引入公共样式 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000 !important;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: none;
+            background-size: cover;
+        }
+        .login-container {
+            background: #f4f4f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .login-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .login-container button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .login-container .username-login {
+            background-color: #fff;
+            color: #514f4f;
+        }
+        .login-container .username-login:hover {
+            background-color: #f5f5f5;
+        }
+        .login-container .phone-login {
+            background-color: #fff;
+            color: #514f4f;
+        }
+        .login-container .phone-login:hover {
+            background-color: #f5f5f5;
+        }
+        .login-container .email-login {
+            background-color: #fff;
+            color: #514f4f;
+        }
+        .login-container .email-login:hover {
+            background-color: #f5f5f5;
+        }
+        .login-container .register {
+            background-color: #f5c518;
+            color: #000;
+            border: 1px solid #ccc;
+        }
+        .login-container .register:hover {
+            background-color: #e4b917;
+        }
+        .login-container .divider {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+        }
+        .login-container .divider::before,
+        .login-container .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #ccc;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %} <!-- 包含 header 部分 -->
+    <div class="login-container">
+        <h2>用户登录</h2>
+        <button class="username-login" onclick="window.location.href='/cinema_ticket/login_pwd'">用户名登录</button>
+        <button class="phone-login" onclick="window.location.href='/cinema_ticket/login_phone'">手机号登录</button>
+        <button class="email-login" onclick="window.location.href='/cinema_ticket/login_email'">邮箱登录</button>
+        <div class="divider">或</div>
+        <button class="register" onclick="window.location.href='/cinema_ticket/register'">注册新账户</button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }} - 电影详情</title>
+    <link rel="stylesheet" href="/static/header_styles.css"> <!-- 引入公共样式 -->
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .movie-detail-container {
+            max-width: 1200px;
+            margin: 40px auto 0 auto;
+            padding: 32px 24px 0 24px;
+            background: none;
+        }
+        .movie-main-info {
+            display: flex;
+            gap: 48px;
+            align-items: flex-start;
+        }
+        .movie-poster {
+            width: 300px;
+            min-width: 220px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+            border-radius: 10px;
+            background: #222;
+            padding: 8px;
+        }
+        .movie-poster img {
+            width: 100%;
+            border-radius: 8px;
+            display: block;
+        }
+        .movie-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .movie-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+        .movie-state {
+            font-size: 1.1rem;
+            color: #f5c518;
+            margin-bottom: 4px;
+        }
+        .movie-meta {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 4px;
+        }
+        .movie-synopsis {
+            margin-top: 16px;
+            font-size: 1.05rem;
+            color: #eee;
+            line-height: 1.7;
+        }
+        .screenings-section {
+            margin-top: 48px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px 24px;
+            color: #222;
+        }
+        .screenings-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 18px;
+        }
+        .screenings-date-select {
+            margin-bottom: 18px;
+        }
+        .screenings-date-select button {
+            background: #fff;
+            border: 1.5px solid #f5c518;
+            color: #f5c518;
+            border-radius: 18px;
+            padding: 6px 22px;
+            font-size: 1rem;
+            /* margin-right: 16px; */
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .screenings-date-select button.active,
+        .screenings-date-select button:hover {
+            background: #f5c518;
+            color: #222;
+        }
+        .screenings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+        .screenings-table th, .screenings-table td {
+            padding: 18px 8px;
+            text-align: center;
+        }
+        .screenings-table th {
+            background: #f7f7f7;
+            color: #222;
+            font-size: 1.1rem;
+        }
+        .screenings-table tr {
+            border-bottom: 1px solid #eee;
+        }
+        .screenings-table td {
+            font-size: 1.05rem;
+        }
+        .screenings-table .buy-btn {
+            background: #f5c518;
+            color: #333;
+            border: none;
+            border-radius: 22px;
+            padding: 8px 28px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background 0.2s;
+        }
+        .screenings-table .buy-btn:hover {
+            background: #e4b917;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        @media (max-width: 900px) {
+            .movie-main-info { flex-direction: column; align-items: center; }
+            .movie-info { width: 100%; }
+            .movie-poster { margin-bottom: 24px; }
+        }
+    </style>
+</head>
+<body>
+    {% include 'header.html' %}
+    <div class="movie-detail-container">
+        <div class="movie-main-info">
+            <div class="movie-poster">
+                <img src="{{ movie.poster }}" alt="{{ movie.title }}">
+            </div>
+            <div class="movie-info">
+                <div class="movie-title">{{ movie.title }}</div>
+                <div class="movie-state">
+                    {% if movie.state == '上映' %}
+                        正在热映
+                    {% elif movie.state == '点映' %}
+                        超前点映
+                    {% elif movie.state == '未上映' %}
+                        即将上映
+                    {% else %}
+                        {{ movie.state }}
+                    {% endif %}
+                </div>
+                <div class="movie-meta">时长：{{ movie.duration }}</div>
+                <div class="movie-meta">上映日期：{{ movie.release_date }}</div>
+                <div class="movie-synopsis">{{ movie.synopsis }}</div>
+            </div>
+        </div>
+
+        <div class="screenings-section">
+            <div class="screenings-header">场次信息</div>
+            {% if screenings_msg %}
+                <div style="padding: 24px 0; color: #888; font-size: 1.15rem; text-align: center;">
+                    {{ screenings_msg }}
+                </div>
+            {% else %}
+                <div class="screenings-date-select" style="display: flex; gap: 16px;">
+                    {% set today = "2025-05-20" %}
+                    {% set tomorrow = "2025-05-21" %}
+                    {% set aftertomorrow = "2025-05-22" %}
+                    {% set date_list = [today, tomorrow, aftertomorrow] %}
+                    {% set date_names = ["5月20日", "5月21日", "5月22日"] %}
+                    {% set selected_date = request.args.get('date', today) %}
+                    {% for i in range(date_list|length) %}
+                        <a href="?id={{ movie.id }}&date={{ date_list[i] }}">
+                            <button class="{% if selected_date == date_list[i] %}active{% endif %}">{{ date_names[i] }}</button>
+                        </a>
+                    {% endfor %}
+                </div>
+                <table class="screenings-table">
+                    <tr>
+                        <th>放映时间</th>
+                        <th>放映厅</th>
+                        <th>售价（元）</th>
+                        <th>选座购票</th>
+                    </tr>
+                    {% if screenings %}
+                        {% for s in screenings if s.date == selected_date %}
+                        <tr>
+                            <td>
+                                <div style="font-size:1.3rem;font-weight:bold;">{{ s.start_time_only }}</div>
+                                <div style="color:#888;font-size:0.95rem;">{{ s.end_time_only }}散场</div>
+                            </td>
+                            <td>{{ s.hall_name }}</td>
+                            <td style="color:#f3c005;font-weight:bold;">
+                                ¥
+                                {% if s.hall_name == '1号激光厅' or s.hall_name == '2号激光厅' %}
+                                    {{ (s.price|float + 10.9)|round(2) }}起
+                                {% elif s.hall_name == 'IMAX厅' %}
+                                    {{ (s.price|float + 20.9)|round(2) }}起
+                                {% else %}
+                                        {{ s.price }}起
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if s.state == '可订座' %}
+                                <a href="{{ url_for('choose_seat') }}?screen_id={{ s.id }}">
+                                    <button class="buy-btn">选座购票</button>
+                                </a>
+                                {% else %}
+                                    <span style="color:#aaa;">{{ s.state }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                </table>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

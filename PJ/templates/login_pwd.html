@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户名登录</title>
+    <link rel="stylesheet" href="/static/header_styles.css"> <!-- 引入公共样式 -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000000 !important;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: none;
+            background-size: cover;
+        }
+        .login-container {
+            background: #f4f4f9;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: rgb(0, 0, 0);
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group label span {
+            color: rgb(252, 193, 1);
+            margin-right: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            border-color: #4CAF50;
+            outline: none;
+        }
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .btn {
+            width: 48%;
+            padding: 10px;
+            background-color: rgb(252, 193, 1);
+            color: rgb(0, 0, 0);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn:hover {
+            background-color: #e3be06;
+        }
+        .btn.cancel {
+            background-color: #fffdfd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .btn.cancel:hover {
+            background-color: #e6e6e6;
+        }
+    </style>
+</head>
+<body class="body">
+    {% include 'header.html' %} <!-- 包含 header 部分 -->
+    <div class="login-container">
+        <h2>用户名登录</h2>
+        <form action="/cinema_ticket/login_pwd" method="POST">
+            <div class="form-group">
+                <label for="username"><span>*</span>用户名</label>
+                <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><span>*</span>密码</label>
+                <input type="password" id="password" name="password" placeholder="请输入密码" required>
+            </div>
+            <div class="btn-container">
+                <button type="submit" class="btn">登录</button>
+                <button type="button" class="btn cancel" onclick="window.location.href='/cinema_ticket/home'">取消</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
